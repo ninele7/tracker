@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Tracker</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="high_priority_habit">High</string>
+    <string name="medium_priority_habit">Medium</string>
+    <string name="low_priority_habit">Low</string>
+    <string name="good_habit">Good</string>
+    <string name="bad_habit">Bad</string>
+    <string name="habit_name_placeholder">Name</string>
+    <string name="habit_description_placeholder">Description</string>
+    <string name="habit_time_period_placeholder">Time period (in days)</string>
+    <string name="habit_amount_of_times_placeholder">Amount of times</string>
+    <string name="save_button">Save</string>
+    <string name="habit_priority">Priority</string>
+    <string name="edit_habit">Edit habit</string>
+    <string name="habit_type_label">Habit type:</string>
+    <string name="no_name_for_habit">Enter habit name</string>
+    <string name="no_priority_for_habit">Select priority for habit</string>
+    <string name="no_type_for_habit">Select habit type</string>
+    <string name="no_period_for_habit">Enter period for habit</string>
+    <string name="no_times_per_period_for_habit">Enter amount of times, habit should be done
+    </string>
+    <string name="priority_habit_view">%1$s priority</string>
+    <string name="period_habit_view">Done %1$d/%2$d times in last %3$d days</string>
+</resources>
