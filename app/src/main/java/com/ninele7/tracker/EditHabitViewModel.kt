@@ -18,7 +18,7 @@ class EditHabitViewModel : ViewModel() {
 
     class Observer : BaseObservable() {
         @get:Bindable
-        var color: Int = Color.HSVToColor(floatArrayOf((1f / 16) * 360, 1f, 1f))
+        var color: Int = Color.HSVToColor(floatArrayOf((1f / 32) * 360, 1f, 1f))
             set(value) {
                 notifyPropertyChanged(BR.color)
                 field = value
