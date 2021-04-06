@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.ninele7.tracker.MainActivity">
+    <item android:id="@+id/habitsFragment"
+          android:title="@string/main_screen"/>
+    <item android:id="@+id/aboutFragment"
+          android:title="@string/about"/>
+</menu>

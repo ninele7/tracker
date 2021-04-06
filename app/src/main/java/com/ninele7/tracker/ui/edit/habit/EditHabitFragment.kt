@@ -2,20 +2,18 @@ package com.ninele7.tracker
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.activity.viewModels
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.ObservableField
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
-import com.ninele7.tracker.databinding.ActivityEditHabitBinding
+import com.ninele7.tracker.databinding.EditHabitFragmentBinding
 
 class HabitPropertyArrayAdapter<T>(
     context: Context,
@@ -62,20 +60,37 @@ class HabitPropertyArrayAdapter<T>(
 
 const val HABIT_INTENT_VALUE = "habit_intent"
 
-class EditHabitActivity : AppCompatActivity() {
+class EditHabitFragment : Fragment() {
+    companion object {
+        private const val INDEX_ARG = "INDEX_ARG"
+        fun newInstance(): EditHabitFragment = EditHabitFragment()
+        fun newInstance(index: Int): EditHabitFragment {
+            val args = Bundle()
+            args.putInt(INDEX_ARG, index)
+            val fragment = EditHabitFragment()
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
     private val viewModel by viewModels<EditHabitViewModel> {
         EditHabitViewModelFactory
     }
+    private val mainViewModel by viewModels<HabitsViewModel> { HabitsViewModelFactory }
     private lateinit var prioritySpinner: AutoCompleteTextView
     private lateinit var typeRadio: RadioGroup
-    private lateinit var binding: ActivityEditHabitBinding
+    private lateinit var binding: EditHabitFragmentBinding
     private lateinit var colorPicker: ColorPicker
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_habit)
+    private val args: EditHabitFragmentArgs by navArgs()
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil.inflate(inflater, R.layout.edit_habit_fragment, container, false)
         binding.viewModel = viewModel
         val priorities = HabitPropertyArrayAdapter(
-            this,
+            inflater.context,
             R.layout.spinner_dropdown_item,
             HabitPriority.values()
         )
@@ -85,25 +100,30 @@ class EditHabitActivity : AppCompatActivity() {
         typeRadio.check(viewModel.typeId)
         if (viewModel.priorityId != -1)
             prioritySpinner.setText(HabitPriority.values()[viewModel.priorityId].resource)
-        val habit = intent.getSerializableExtra(HABIT_INTENT_VALUE)
-        if (habit is Habit) {
-            viewModel.name = habit.name
-            viewModel.description = habit.description
-            viewModel.period = habit.period.toString()
-            viewModel.timesPerPeriod = habit.timesPerPeriod.toString()
-            binding.prioritySpinner.setText(habit.priority.getName(applicationContext))
-            viewModel.priorityId = habit.priority.ordinal
-            typeRadio.check(if (habit.type == HabitType.GOOD) R.id.radioGood else R.id.radioBad)
-            viewModel.observer.color = habit.color
+        if (args.id != -1) {
+            val habit = mainViewModel.habitList.find { it.id == args.id }
+            if (habit != null) {
+                viewModel.name = habit.name ?: ""
+                viewModel.description = habit.description ?: ""
+                viewModel.period = habit.period.toString()
+                viewModel.timesPerPeriod = habit.timesPerPeriod.toString()
+                binding.prioritySpinner.setText(habit.priority?.getName(inflater.context))
+                viewModel.priorityId = habit.priority?.ordinal ?: 0
+                typeRadio.check(if (habit.type == HabitType.GOOD) R.id.radioGood else R.id.radioBad)
+                val newColor = habit.color
+                if (newColor != null)
+                    viewModel.observer.color = newColor
+            }
         }
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.title = getString(R.string.edit_habit)
+//        mainViewModel.title.value = R.string.edit_habit
         prioritySpinner.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ -> viewModel.priorityId = position }
-        colorPicker = ColorPicker(binding.colorPicker, this)
+        colorPicker = ColorPicker(binding.colorPicker, inflater.context)
         colorPicker.setOnSelectColor { color ->
             viewModel.observer.color = color
         }
+        binding.button.setOnClickListener { onSaveButton(it) }
+        return binding.root
     }
 
     override fun onDestroy() {
@@ -111,8 +131,8 @@ class EditHabitActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
+    override fun onDetach() {
+        super.onDetach()
         EditHabitViewModelFactory.resetInstance()
     }
 
@@ -126,25 +146,35 @@ class EditHabitActivity : AppCompatActivity() {
         return null
     }
 
-    fun onSaveButton(view: View) {
-        val resultIntent = Intent()
+    private fun populateHabit(habit: Habit) {
+        habit.name = viewModel.name
+        habit.description = viewModel.description
+        habit.priority = HabitPriority.values()[viewModel.priorityId]
+        habit.type =
+            if (typeRadio.checkedRadioButtonId == R.id.radioGood) HabitType.GOOD else HabitType.BAD
+        habit.period = viewModel.period.toInt()
+        habit.timesPerPeriod = viewModel.timesPerPeriod.toInt()
+        habit.color = viewModel.observer.color
+    }
+
+    private fun onSaveButton(view: View) {
         val validationResult = validateInput()
         if (validationResult != null) {
             Snackbar.make(view, validationResult, 2000).show()
             return
         }
-        val habit = Habit(
-            // Validated in validateInput
-            viewModel.name,
-            viewModel.description,
-            HabitPriority.values()[viewModel.priorityId],
-            if (typeRadio.checkedRadioButtonId == R.id.radioGood) HabitType.GOOD else HabitType.BAD,
-            viewModel.period.toInt(),
-            viewModel.timesPerPeriod.toInt(),
-            viewModel.observer.color
-        )
-        resultIntent.putExtra(HABIT_INTENT_VALUE, habit)
-        setResult(RESULT_OK, resultIntent)
-        finish()
+
+        if (args.id != -1) {
+            val habitToUpdate = mainViewModel.habitList.find { it.id == args.id }
+            if (habitToUpdate != null) {
+                populateHabit(habitToUpdate)
+            }
+        } else {
+            val habit = Habit(mainViewModel.nextHabitId)
+            populateHabit(habit)
+            mainViewModel.habitList.add(habit)
+        }
+        mainViewModel.habitListLiveData.notifyObserver()
+        findNavController().popBackStack()
     }
 }

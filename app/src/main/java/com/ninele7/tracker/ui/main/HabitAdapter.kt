@@ -35,7 +35,7 @@ class HabitAdapter : ListAdapter<Habit, HabitAdapter.HabitViewHolder>(HabitDiffC
 
 object HabitDiffCallback : DiffUtil.ItemCallback<Habit>() {
     override fun areItemsTheSame(oldItem: Habit, newItem: Habit): Boolean {
-        return oldItem == newItem
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: Habit, newItem: Habit): Boolean {

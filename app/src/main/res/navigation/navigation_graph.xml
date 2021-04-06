@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/navigation_graph"
+            app:startDestination="@id/habitsFragment">
+    <fragment android:id="@+id/habitsFragment"
+              android:name="com.ninele7.tracker.ui.main.MainFragment"
+              android:label="@string/app_name">
+        <action android:id="@+id/action_habitsFragment_to_editHabitFragment"
+                app:destination="@id/editHabitFragment"/>
+        <action android:id="@+id/action_habitsFragment_to_aboutFragment"
+                app:destination="@id/aboutFragment"/>
+    </fragment>
+    <fragment android:id="@+id/editHabitFragment"
+              android:name="com.ninele7.tracker.EditHabitFragment"
+              android:label="@string/edit_habit">
+        <argument android:name="id" app:argType="integer" android:defaultValue="-1"/>
+    </fragment>
+    <fragment android:id="@+id/aboutFragment"
+              android:name="com.ninele7.tracker.ui.about.AboutFragment"
+              android:label="@string/about"/>
+</navigation>

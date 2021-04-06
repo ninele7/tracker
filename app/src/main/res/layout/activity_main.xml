@@ -6,7 +6,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
-
     <com.google.android.material.appbar.AppBarLayout
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
@@ -20,16 +19,26 @@
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
     </com.google.android.material.appbar.AppBarLayout>
+    <androidx.drawerlayout.widget.DrawerLayout android:layout_width="match_parent"
+                                               android:layout_height="match_parent"
+                                               android:id="@+id/navigation_drawer">
 
-    <include layout="@layout/content_main"/>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_input_add"
-            android:tint="@android:color/white"
-            android:onClick="onFabClick"/>
-
+        <androidx.fragment.app.FragmentContainerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/nav_host_fragment"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                app:defaultNavHost="true"
+                app:navGraph="@navigation/navigation_graph"
+                android:layout_marginTop="?attr/actionBarSize"
+        />
+        <com.google.android.material.navigation.NavigationView
+                android:id="@+id/navigation_view"
+                app:menu="@menu/action_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:layout_marginTop="?attr/actionBarSize"/>
+    </androidx.drawerlayout.widget.DrawerLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+

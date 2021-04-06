@@ -20,18 +20,21 @@ enum class HabitType(override val resource: Int, val emoji: String) : HabitPrope
 }
 
 data class Habit(
-    val name: String,
-    val description: String,
-    val priority: HabitPriority,
-    val type: HabitType,
-    val period: Int,
-    val timesPerPeriod: Int,
-    val color: Int
+    val id: Int,
+    var name: String? = null,
+    var description: String? = null,
+    var priority: HabitPriority? = null,
+    var type: HabitType? = null,
+    var period: Int? = null,
+    var timesPerPeriod: Int? = null,
+    var color: Int? = null
 ) : Serializable {
-    fun getPriorityText(c: Context): String = priority.getName(c)
-    fun getTypeText(c: Context): String = type.getName(c)
-    fun getTypeEmoji(): String = type.emoji
+    fun getPriorityText(c: Context): String? = priority?.getName(c)
+    fun getTypeText(c: Context): String? = type?.getName(c)
+    fun getTypeEmoji(): String? = type?.emoji
     fun getPriorityCardText(c: Context) =
-        c.getString(R.string.priority_habit_view, priority.getName(c))
-    fun getPeriodCardText(c: Context) = c.getString(R.string.period_habit_view, 0, timesPerPeriod, period)
+        c.getString(R.string.priority_habit_view, priority?.getName(c))
+
+    fun getPeriodCardText(c: Context) =
+        c.getString(R.string.period_habit_view, 0, timesPerPeriod, period)
 }

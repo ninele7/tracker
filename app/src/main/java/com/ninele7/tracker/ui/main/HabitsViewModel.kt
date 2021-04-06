@@ -1,12 +1,17 @@
 package com.ninele7.tracker
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 class HabitsViewModel: ViewModel() {
     val habitList = mutableListOf<Habit>()
-    var lastEditedHabit = -1
-    val habitAdapter = HabitAdapter()
+    val habitListLiveData = MutableLiveData<List<Habit>>(habitList)
+    var nextHabitId: Int = 0
+        get() {
+            field++
+            return field
+        }
 }
 
 object HabitsViewModelFactory : ViewModelProvider.Factory {
@@ -18,4 +23,8 @@ object HabitsViewModelFactory : ViewModelProvider.Factory {
             return instance as T
         throw IllegalArgumentException("Unknown ViewModel class")
     }
+}
+
+fun <T> MutableLiveData<T>.notifyObserver() {
+    this.value = this.value
 }

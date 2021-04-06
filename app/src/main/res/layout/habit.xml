@@ -26,12 +26,12 @@
                           android:id="@+id/habit_name"
                           android:textSize="24sp"
                           android:padding="4dp"/>
-                <TextView android:text="@{habit.description}" android:layout_width="0dp"
+                <TextView android:text="@{habit.description}" android:layout_width="wrap_content"
                           android:layout_height="wrap_content" android:maxLines="2"
                           app:layout_constraintStart_toEndOf="@+id/habit_name"
                           app:layout_constraintEnd_toStartOf="@id/type_emoji"
                           app:layout_constraintTop_toTopOf="parent"
-                          app:layout_constraintWidth_default="wrap"
+                          app:layout_constrainedWidth="true"
                           android:id="@+id/habit_description"
                           android:padding="4dp" android:layout_marginTop="4dp"
                           app:layout_constraintHorizontal_bias="0.0"/>

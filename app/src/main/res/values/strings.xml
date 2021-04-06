@@ -29,4 +29,8 @@
     </string>
     <string name="priority_habit_view">%1$s priority</string>
     <string name="period_habit_view">Done %1$d/%2$d times in last %3$d days</string>
+    <string name="main_screen">Main screen</string>
+    <string name="about">About</string>
+    <string name="created_by_ninele7">Created by ninele7</string>
+    <string name="all">All</string>
 </resources>

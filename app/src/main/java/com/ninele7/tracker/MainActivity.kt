@@ -1,74 +1,56 @@
 package com.ninele7.tracker
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import androidx.activity.viewModels
+import android.util.Log
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.navigation.NavigationView
+import androidx.core.view.GravityCompat
+
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 
 
-class MainActivity : AppCompatActivity() {
-    private val viewModel by viewModels<HabitsViewModel> {
-        HabitsViewModelFactory
-    }
-    private val newHabitActivityRequestCode = 1
-    private val editHabitActivityRequestCode = 2
-    private lateinit var recyclerView: RecyclerView
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    private lateinit var navController: NavController
+
+    private lateinit var drawer: DrawerLayout
+    private lateinit var navigationView: NavigationView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
-        recyclerView = findViewById(R.id.recycler_view)
-        recyclerView.adapter = viewModel.habitAdapter
-        viewModel.habitAdapter.submitList(viewModel.habitList)
-        ItemTouchHelper(HabitMoveCallback(viewModel.habitAdapter, viewModel)).attachToRecyclerView(
-            recyclerView
-        )
-        recyclerView.addOnItemTouchListener(RecyclerItemClickListener(this, onItemClick))
+        drawer = findViewById(R.id.navigation_drawer)
+        navigationView = findViewById(R.id.navigation_view)
+        navigationView.setNavigationItemSelectedListener(this)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
+        val appBarConfiguration = AppBarConfiguration(navController.graph, drawer)
+        navigationView.setupWithNavController(navController)
+        setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
-    fun onFabClick(view: View) {
-        startActivityForResult(
-            Intent(this, EditHabitActivity::class.java),
-            newHabitActivityRequestCode
-        )
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        drawer.closeDrawer(GravityCompat.START)
+        return true
     }
 
-    private val onItemClick: (View, Int) -> Unit = { _, position ->
-        viewModel.lastEditedHabit = position
-        startActivityForResult(
-            Intent(this, EditHabitActivity::class.java).putExtra(
-                HABIT_INTENT_VALUE,
-                viewModel.habitList[position]
-            ),
-            editHabitActivityRequestCode
-        )
-    }
-
-    private fun extractHabitFromIntent(data: Intent): Habit? {
-        val habit = data.getSerializableExtra(HABIT_INTENT_VALUE)
-        return if (habit is Habit) habit else null
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == newHabitActivityRequestCode && resultCode == Activity.RESULT_OK && data != null) {
-            val habit = extractHabitFromIntent(data)
-            if (habit != null)
-                viewModel.habitList.add(habit)
-            viewModel.habitAdapter.notifyDataSetChanged()
-            recyclerView.scrollToPosition(viewModel.habitList.size - 1)
-            return
+    override fun onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
         }
-        if (requestCode == editHabitActivityRequestCode && resultCode == Activity.RESULT_OK && data != null) {
-            val habit = extractHabitFromIntent(data)
-            if (habit != null)
-                viewModel.habitList[viewModel.lastEditedHabit] = habit
-            viewModel.habitAdapter.notifyDataSetChanged()
-            return
-        }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        return NavigationUI.navigateUp(navController, drawer) || super.onSupportNavigateUp()
     }
 }
