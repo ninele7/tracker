@@ -1,4 +1,4 @@
-package com.ninele7.tracker
+package com.ninele7.tracker.ui.main
 
 import android.content.Context
 import android.view.GestureDetector

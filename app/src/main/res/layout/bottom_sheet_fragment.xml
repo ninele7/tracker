@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+>
+    <data>
+        <variable name="viewModel" type="com.ninele7.tracker.ui.main.HabitsViewModel"/>
+    </data>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="vertical">
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/filter"
+                android:importantForAutofill="no"
+                android:paddingHorizontal="8dp"
+                android:inputType="text"
+                android:text="@={viewModel.filterString}"
+                android:id="@+id/filter_text"
+        />
+        <RadioGroup android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:id="@+id/sort_radio_group">
+            <TextView android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:text="@string/sort_order"/>
+            <RadioButton
+                    android:text="@string/creation_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/radio_creation_time"
+                    android:checked="true"/>
+            <RadioButton
+                    android:text="@string/name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/radio_name"/>
+        </RadioGroup>
+    </LinearLayout>
+</layout>

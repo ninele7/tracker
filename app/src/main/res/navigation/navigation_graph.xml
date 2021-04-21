@@ -12,7 +12,7 @@
                 app:destination="@id/aboutFragment"/>
     </fragment>
     <fragment android:id="@+id/editHabitFragment"
-              android:name="com.ninele7.tracker.EditHabitFragment"
+              android:name="com.ninele7.tracker.ui.edit.habit.EditHabitFragment"
               android:label="@string/edit_habit">
         <argument android:name="id" app:argType="integer" android:defaultValue="-1"/>
     </fragment>

@@ -2,16 +2,17 @@ package com.ninele7.tracker.ui.main
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.ninele7.tracker.*
+import com.ninele7.tracker.R
+import com.ninele7.tracker.model.Habit
+import com.ninele7.tracker.model.HabitType
 
 class HabitsFragment : Fragment() {
 
@@ -27,7 +28,7 @@ class HabitsFragment : Fragment() {
         }
     }
 
-    private val viewModel by viewModels<HabitsViewModel> {
+    private val viewModel by activityViewModels<HabitsViewModel> {
         HabitsViewModelFactory
     }
 
@@ -45,15 +46,20 @@ class HabitsFragment : Fragment() {
         val adapter = HabitAdapter()
         val correctHabitType = arguments?.getSerializable(FILTER) as HabitType?
         recyclerView.adapter = adapter
-        viewModel.habitListLiveData.observe(viewLifecycleOwner, {
-            currentList =
-                (if (correctHabitType == null) it else it.filter { habit -> habit.type == correctHabitType })
+        viewModel.habits.observe(viewLifecycleOwner) {
+            if (it != null) {
+                currentList =
+                    (if (correctHabitType == null) it else it.filter { habit -> habit.type == correctHabitType })
 
-            adapter.submitList(currentList)
-        })
-        ItemTouchHelper(HabitMoveCallback(adapter, viewModel)).attachToRecyclerView(
+                adapter.submitList(currentList)
+            }
+        }
+        ItemTouchHelper(HabitMoveCallback(adapter) {
+            viewModel.removeHabit(currentList[it].id)
+        }).attachToRecyclerView(
             recyclerView
         )
+
         return view
     }
 

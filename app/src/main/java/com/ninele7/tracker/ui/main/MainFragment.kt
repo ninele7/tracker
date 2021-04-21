@@ -5,15 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager.widget.ViewPager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import com.ninele7.tracker.HabitType
 import com.ninele7.tracker.R
+import com.ninele7.tracker.model.HabitType
 
 class GoodBadHabitsAdapter(fragmentManager: FragmentManager, private val context: Context) :
     FragmentPagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
@@ -36,6 +40,10 @@ class GoodBadHabitsAdapter(fragmentManager: FragmentManager, private val context
 class MainFragment : Fragment() {
     private lateinit var pager: ViewPager
 
+    private val viewModel by activityViewModels<HabitsViewModel> {
+        HabitsViewModelFactory
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -43,6 +51,23 @@ class MainFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.main_fragment, container, false)
         view.findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { onFabClick() }
+        val bottomSheetBehavior =
+            BottomSheetBehavior.from(view.findViewById<LinearLayout>(R.id.bottom_sheet))
+        val inputManager = (activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?)
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    viewModel.filterString.value = ""
+                    inputManager?.hideSoftInputFromWindow(
+                        view.windowToken,
+                        0
+                    )
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        })
         return view
     }
 
@@ -52,7 +77,7 @@ class MainFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val adapter = GoodBadHabitsAdapter(childFragmentManager, view.context)
-        pager = view.findViewById<ViewPager>(R.id.view_pager)
+        pager = view.findViewById(R.id.view_pager)
         val tabLayout = view.findViewById<TabLayout>(R.id.tab_layout)
         pager.adapter = adapter
         tabLayout.setupWithViewPager(pager)

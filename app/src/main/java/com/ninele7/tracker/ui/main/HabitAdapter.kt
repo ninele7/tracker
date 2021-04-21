@@ -1,4 +1,4 @@
-package com.ninele7.tracker
+package com.ninele7.tracker.ui.main
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.ninele7.tracker.R
 import com.ninele7.tracker.databinding.HabitBinding
+import com.ninele7.tracker.model.Habit
 
 
 class HabitAdapter : ListAdapter<Habit, HabitAdapter.HabitViewHolder>(HabitDiffCallback) {
@@ -43,7 +45,7 @@ object HabitDiffCallback : DiffUtil.ItemCallback<Habit>() {
     }
 }
 
-class HabitMoveCallback(private val adapter: HabitAdapter, private val model: HabitsViewModel) :
+class HabitMoveCallback(private val adapter: HabitAdapter, private val swipedCallBack: (Int) -> Unit) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
     override fun onMove(
         recyclerView: RecyclerView,
@@ -53,8 +55,7 @@ class HabitMoveCallback(private val adapter: HabitAdapter, private val model: Ha
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
         val position = viewHolder.adapterPosition
-        model.habitList.removeAt(position)
-        adapter.notifyDataSetChanged()
+        swipedCallBack(position)
     }
 }
 

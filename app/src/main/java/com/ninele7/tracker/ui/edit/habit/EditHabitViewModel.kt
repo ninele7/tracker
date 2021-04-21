@@ -1,20 +1,95 @@
-package com.ninele7.tracker
+package com.ninele7.tracker.ui.edit.habit
 
 import android.graphics.Color
+import android.view.View
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
+import com.ninele7.tracker.BR
+import com.ninele7.tracker.R
+import com.ninele7.tracker.model.DataSource
+import com.ninele7.tracker.model.Habit
+import com.ninele7.tracker.model.HabitPriority
+import com.ninele7.tracker.model.HabitType
 
-class EditHabitViewModel : ViewModel() {
+class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
     var name = ""
     var description = ""
     var period = ""
     var timesPerPeriod = ""
-    var priorityId = -1
-    var typeId = -1
+    var openId = -1
+    val priorityId = MutableLiveData(-1)
+    val type = MutableLiveData<HabitType>(null)
+    var navigator: EditHabitNavigator? = null
 
     val observer = Observer()
+
+    fun loadHabitById(id: Int) {
+        openId = id
+        val habit = dataSource.getHabit(id)
+        if (habit != null) {
+            name = habit.name ?: ""
+            description = habit.description ?: ""
+            period = habit.period.toString()
+            timesPerPeriod = habit.timesPerPeriod.toString()
+            priorityId.value = habit.priority?.ordinal ?: -1
+            type.value = habit.type
+            val newColor = habit.color
+            if (newColor != null)
+                observer.color = newColor
+        }
+    }
+
+    fun onViewCreated(nav: EditHabitNavigator) {
+        navigator = nav
+    }
+
+    fun onViewDestroyed() {
+        navigator = null
+    }
+
+    private fun validateInput(): Int? {
+        if (name.isEmpty()) return R.string.no_name_for_habit
+        if (priorityId.value == -1) return R.string.no_priority_for_habit
+        if (type.value == null) return R.string.no_type_for_habit
+        if (period.isEmpty()) return R.string.no_period_for_habit
+        if (timesPerPeriod.isEmpty()
+        ) return R.string.no_times_per_period_for_habit
+        return null
+    }
+
+    fun onSaveButton(view: View) {
+        val validationResult = validateInput()
+        if (validationResult != null) {
+            Snackbar.make(view, validationResult, 2000).show()
+            return
+        }
+
+        if (openId != -1) {
+            dataSource.updateHabit(createHabit(openId))
+        } else {
+            val habit = createHabit(dataSource.nextHabitId)
+            dataSource.addHabit(habit)
+        }
+        navigator?.onSaved()
+    }
+
+    private fun createHabit(id: Int): Habit {
+        val habit = Habit(id)
+        habit.name = name
+        habit.description = description
+        val priorityIdValue = priorityId.value
+        if (priorityIdValue != null)
+            habit.priority = HabitPriority.values()[priorityIdValue]
+        habit.type = type.value
+        habit.period = period.toInt()
+        habit.timesPerPeriod = timesPerPeriod.toInt()
+        habit.color = observer.color
+        return habit
+    }
 
     class Observer : BaseObservable() {
         @get:Bindable
@@ -42,16 +117,10 @@ class EditHabitViewModel : ViewModel() {
 }
 
 object EditHabitViewModelFactory : ViewModelProvider.Factory {
-    private var instance = EditHabitViewModel()
-
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EditHabitViewModel::class.java))
             @Suppress("UNCHECKED_CAST")
-            return instance as T
+            return EditHabitViewModel(DataSource.getDataSource()) as T
         throw IllegalArgumentException("Unknown ViewModel class")
-    }
-
-    fun resetInstance() {
-        instance = EditHabitViewModel()
     }
 }

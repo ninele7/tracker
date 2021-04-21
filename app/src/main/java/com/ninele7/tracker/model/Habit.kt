@@ -1,6 +1,7 @@
-package com.ninele7.tracker
+package com.ninele7.tracker.model
 
 import android.content.Context
+import com.ninele7.tracker.R
 import java.io.Serializable
 
 interface HabitProperty : Serializable {

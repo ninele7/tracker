@@ -3,7 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="habit" type="com.ninele7.tracker.Habit"/>
+        <variable name="habit" type="com.ninele7.tracker.model.Habit"/>
     </data>
     <FrameLayout
             android:layout_width="match_parent"

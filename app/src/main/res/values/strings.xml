@@ -33,4 +33,9 @@
     <string name="about">About</string>
     <string name="created_by_ninele7">Created by ninele7</string>
     <string name="all">All</string>
+    <string name="plus_sign">Plus sign</string>
+    <string name="filter">Filter</string>
+    <string name="sort_order">Sort order</string>
+    <string name="creation_time">Creation time</string>
+    <string name="name">Name</string>
 </resources>
