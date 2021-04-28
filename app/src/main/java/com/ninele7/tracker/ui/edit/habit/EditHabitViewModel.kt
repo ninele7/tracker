@@ -1,6 +1,7 @@
 package com.ninele7.tracker.ui.edit.habit
 
 import android.graphics.Color
+import android.util.Log
 import android.view.View
 import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
@@ -14,6 +15,8 @@ import com.ninele7.tracker.model.DataSource
 import com.ninele7.tracker.model.Habit
 import com.ninele7.tracker.model.HabitPriority
 import com.ninele7.tracker.model.HabitType
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
     var name = ""
@@ -29,7 +32,7 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
 
     fun loadHabitById(id: Int) {
         openId = id
-        val habit = dataSource.getHabit(id)
+        val habit = dataSource.habitsList.value?.firstOrNull { it.id == id }
         if (habit != null) {
             name = habit.name ?: ""
             description = habit.description ?: ""
@@ -69,15 +72,15 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
         }
 
         if (openId != -1) {
-            dataSource.updateHabit(createHabit(openId))
+            GlobalScope.launch { dataSource.updateHabit(createHabit(openId)) }
         } else {
-            val habit = createHabit(dataSource.nextHabitId)
-            dataSource.addHabit(habit)
+            val habit = createHabit()
+            GlobalScope.launch { dataSource.addHabit(habit) }
         }
         navigator?.onSaved()
     }
 
-    private fun createHabit(id: Int): Habit {
+    private fun createHabit(id: Int = 0): Habit {
         val habit = Habit(id)
         habit.name = name
         habit.description = description

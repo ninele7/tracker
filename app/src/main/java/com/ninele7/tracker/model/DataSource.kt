@@ -1,44 +1,32 @@
 package com.ninele7.tracker.model
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.room.Room
+import com.ninele7.tracker.App
+import java.lang.NullPointerException
 
-class DataSource {
-    private val habitsLiveData = MutableLiveData(listOf<Habit>())
-    var nextHabitId: Int = 0
-        get() {
-            field++
-            return field
-        }
+class DataSource(private val db: HabitDao) {
+    val habitsList: LiveData<List<Habit>> = db.getAll()
 
-    fun getHabitsList(): LiveData<List<Habit>> = habitsLiveData
+    suspend fun addHabit(habit: Habit) = db.insertAll(habit)
 
-    fun addHabit(habit: Habit) {
-        habitsLiveData.value = habitsLiveData.value?.plus(habit)
-    }
+    suspend fun removeHabit(id: Int) = db.delete(id)
 
-    fun removeHabit(id: Int) {
-        val mutable = habitsLiveData.value?.toMutableList() ?: return
-        mutable.removeIf { it.id == id }
-        habitsLiveData.value = mutable
-    }
-
-    fun updateHabit(habit: Habit) {
-        val mutable = habitsLiveData.value?.toMutableList() ?: return
-        val index = mutable.indexOfFirst { it.id == habit.id }
-        if (index == -1) throw NoSuchElementException("Habit wasn't in the list")
-        mutable[index] = habit
-        habitsLiveData.value = mutable
-    }
-
-    fun getHabit(id: Int): Habit? = habitsLiveData.value?.firstOrNull { it.id == id }
+    suspend fun updateHabit(habit: Habit) = db.update(habit)
 
     companion object {
         private var INSTANCE: DataSource? = null
 
         fun getDataSource(): DataSource {
             return synchronized(DataSource::class) {
-                val newInstance = INSTANCE ?: DataSource()
+                val instance = INSTANCE
+                val newInstance = if (instance != null) instance else {
+                    val context = App.getContext() ?: throw NullPointerException()
+                    val db =
+                        Room.databaseBuilder(context, AppDatabase::class.java, "main")
+                            .build()
+                    DataSource(db.habitDao())
+                }
                 INSTANCE = newInstance
                 newInstance
             }

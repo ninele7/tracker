@@ -1,6 +1,7 @@
 package com.ninele7.tracker.model
 
 import android.content.Context
+import androidx.room.*
 import com.ninele7.tracker.R
 import java.io.Serializable
 
@@ -20,8 +21,22 @@ enum class HabitType(override val resource: Int, val emoji: String) : HabitPrope
     BAD(R.string.bad_habit, "\uD83D\uDE14");
 }
 
+class Converters {
+    @TypeConverter
+    fun fromHabitPriority(value: HabitPriority): Int = value.ordinal
+    @TypeConverter
+    fun toHabitPriority(value: Int): HabitPriority = HabitPriority.values()[value]
+    @TypeConverter
+    fun fromHabitType(value: HabitType): Int = value.ordinal
+    @TypeConverter
+    fun toHabitType(value: Int): HabitType = HabitType.values()[value]
+}
+
+@Entity
+@TypeConverters(Converters::class)
 data class Habit(
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     var name: String? = null,
     var description: String? = null,
     var priority: HabitPriority? = null,

@@ -4,16 +4,20 @@ import androidx.lifecycle.*
 import com.ninele7.tracker.R
 import com.ninele7.tracker.model.DataSource
 import com.ninele7.tracker.model.Habit
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class HabitsViewModel(private val dataSource: DataSource) : ViewModel() {
     val filterString = MutableLiveData("")
     val sortOrder = MutableLiveData<(Habit, Habit) -> Int>()
-    val habits = Transformations.map(TripleTrigger(dataSource.getHabitsList(), filterString, sortOrder)) {
-        val unsorted = it.first?.filter { habit -> habit.name?.contains(it.second ?: "") ?: true }
-        val sortOrder = it.third
-        if (sortOrder == null) unsorted
-        else unsorted?.sortedWith(sortOrder)
-    }
+    val habits =
+        Transformations.map(TripleTrigger(dataSource.habitsList, filterString, sortOrder)) {
+            val unsorted =
+                it.first?.filter { habit -> habit.name?.contains(it.second ?: "") ?: true }
+            val sortOrder = it.third
+            if (sortOrder == null) unsorted
+            else unsorted?.sortedWith(sortOrder)
+        }
 
     fun changeSortOrder(id: Int) {
         when (id) {
@@ -28,7 +32,7 @@ class HabitsViewModel(private val dataSource: DataSource) : ViewModel() {
         }
     }
 
-    fun removeHabit(id: Int) = dataSource.removeHabit(id)
+    fun removeHabit(id: Int) = GlobalScope.launch { dataSource.removeHabit(id) }
 }
 
 object HabitsViewModelFactory : ViewModelProvider.Factory {
@@ -40,10 +44,11 @@ object HabitsViewModelFactory : ViewModelProvider.Factory {
     }
 }
 
-class TripleTrigger<A, B, C>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>) : MediatorLiveData<Triple<A?, B?, C?>>() {
+class TripleTrigger<A, B, C>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>) :
+    MediatorLiveData<Triple<A?, B?, C?>>() {
     init {
         addSource(a) { value = Triple(it, b.value, c.value) }
         addSource(b) { value = Triple(a.value, it, c.value) }
-        addSource(c) { value = Triple(a.value, b.value, it)}
+        addSource(c) { value = Triple(a.value, b.value, it) }
     }
 }
