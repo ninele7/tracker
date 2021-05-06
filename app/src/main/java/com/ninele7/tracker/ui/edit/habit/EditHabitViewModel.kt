@@ -8,6 +8,7 @@ import androidx.databinding.Bindable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.google.android.material.snackbar.Snackbar
 import com.ninele7.tracker.BR
 import com.ninele7.tracker.R
@@ -15,8 +16,7 @@ import com.ninele7.tracker.model.DataSource
 import com.ninele7.tracker.model.Habit
 import com.ninele7.tracker.model.HabitPriority
 import com.ninele7.tracker.model.HabitType
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
     var name = ""
@@ -70,14 +70,15 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
             Snackbar.make(view, validationResult, 2000).show()
             return
         }
-
-        if (openId != -1) {
-            GlobalScope.launch { dataSource.updateHabit(createHabit(openId)) }
-        } else {
-            val habit = createHabit()
-            GlobalScope.launch { dataSource.addHabit(habit) }
+        viewModelScope.launch {
+            if (openId != -1) {
+                dataSource.updateHabit(createHabit(openId))
+            } else {
+                val habit = createHabit()
+                dataSource.addHabit(habit)
+            }
+            navigator?.onSaved()
         }
-        navigator?.onSaved()
     }
 
     private fun createHabit(id: Int = 0): Habit {

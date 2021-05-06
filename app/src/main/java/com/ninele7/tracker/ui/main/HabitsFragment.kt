@@ -46,14 +46,11 @@ class HabitsFragment : Fragment() {
         val adapter = HabitAdapter()
         val correctHabitType = arguments?.getSerializable(FILTER) as HabitType?
         recyclerView.adapter = adapter
-        viewModel.habits.observe(viewLifecycleOwner) {
-            if (it != null) {
-                currentList =
-                    (if (correctHabitType == null) it else it.filter { habit -> habit.type == correctHabitType })
-
-                adapter.submitList(currentList)
+        viewModel.getFilteredHabits(correctHabitType)
+            .observe(viewLifecycleOwner) {
+                currentList = it
+                adapter.submitList(it)
             }
-        }
         ItemTouchHelper(HabitMoveCallback(adapter) {
             viewModel.removeHabit(currentList[it].id)
         }).attachToRecyclerView(

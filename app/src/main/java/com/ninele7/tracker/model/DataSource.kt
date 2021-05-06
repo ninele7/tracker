@@ -3,6 +3,7 @@ package com.ninele7.tracker.model
 import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.ninele7.tracker.App
+import kotlinx.coroutines.CoroutineScope
 import java.lang.NullPointerException
 
 class DataSource(private val db: HabitDao) {

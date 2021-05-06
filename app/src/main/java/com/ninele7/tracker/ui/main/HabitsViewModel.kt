@@ -4,19 +4,22 @@ import androidx.lifecycle.*
 import com.ninele7.tracker.R
 import com.ninele7.tracker.model.DataSource
 import com.ninele7.tracker.model.Habit
-import kotlinx.coroutines.GlobalScope
+import com.ninele7.tracker.model.HabitType
 import kotlinx.coroutines.launch
 
 class HabitsViewModel(private val dataSource: DataSource) : ViewModel() {
     val filterString = MutableLiveData("")
-    val sortOrder = MutableLiveData<(Habit, Habit) -> Int>()
-    val habits =
-        Transformations.map(TripleTrigger(dataSource.habitsList, filterString, sortOrder)) {
-            val unsorted =
-                it.first?.filter { habit -> habit.name?.contains(it.second ?: "") ?: true }
-            val sortOrder = it.third
-            if (sortOrder == null) unsorted
-            else unsorted?.sortedWith(sortOrder)
+    private val sortOrder = MutableLiveData<(Habit, Habit) -> Int>()
+
+    private val habits: LiveData<List<Habit>> = dataSource.habitsList
+        .product(filterString)
+        .product(sortOrder)
+        .map { (pair, order) ->
+            if (pair != null) {
+                val (list, filter) = pair
+                val unsorted = list?.filter { it.name?.contains(filter ?: "") ?: true }
+                (if (order == null) unsorted else unsorted?.sortedWith(order)) ?: listOf()
+            } else listOf()
         }
 
     fun changeSortOrder(id: Int) {
@@ -32,7 +35,12 @@ class HabitsViewModel(private val dataSource: DataSource) : ViewModel() {
         }
     }
 
-    fun removeHabit(id: Int) = GlobalScope.launch { dataSource.removeHabit(id) }
+    fun getFilteredHabits(type: HabitType?): LiveData<List<Habit>> {
+        if (type == null) return habits
+        return habits.map { it.filter { h -> h.type == type } }
+    }
+
+    fun removeHabit(id: Int) = viewModelScope.launch { dataSource.removeHabit(id) }
 }
 
 object HabitsViewModelFactory : ViewModelProvider.Factory {
@@ -44,11 +52,11 @@ object HabitsViewModelFactory : ViewModelProvider.Factory {
     }
 }
 
-class TripleTrigger<A, B, C>(a: LiveData<A>, b: LiveData<B>, c: LiveData<C>) :
-    MediatorLiveData<Triple<A?, B?, C?>>() {
-    init {
-        addSource(a) { value = Triple(it, b.value, c.value) }
-        addSource(b) { value = Triple(a.value, it, c.value) }
-        addSource(c) { value = Triple(a.value, b.value, it) }
-    }
+fun <T1, T2> LiveData<T1>.map(f: (T1) -> T2) = Transformations.map(this, f)
+
+fun <T1, T2> LiveData<T1>.product(other: LiveData<T2>): LiveData<Pair<T1?, T2?>> {
+    val mediator = MediatorLiveData<Pair<T1?, T2?>>()
+    mediator.addSource(this) { mediator.value = it to other.value }
+    mediator.addSource(other) { mediator.value = this.value to it }
+    return mediator
 }
