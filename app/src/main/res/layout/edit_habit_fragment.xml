@@ -21,7 +21,7 @@
                     android:layout_weight="1"
                     android:importantForAutofill="no"
                     android:inputType="text"
-                    android:text="@={viewModel.name}"
+                    android:text="@={viewModel.observer.name}"
                     android:maxLength="18"
             />
             <EditText
@@ -33,7 +33,7 @@
                     android:layout_weight="1"
                     android:importantForAutofill="no"
                     android:maxLength="36"
-                    android:text="@={viewModel.description}"/>
+                    android:text="@={viewModel.observer.description}"/>
             <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                     android:layout_width="match_parent"
@@ -73,7 +73,7 @@
                     android:hint="@string/habit_time_period_placeholder"
                     android:importantForAutofill="no"
                     android:inputType="number"
-                    android:text="@={viewModel.period}"/>
+                    android:text="@={viewModel.observer.period}"/>
             <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
                     android:inputType="number"
                     android:hint="@string/habit_amount_of_times_placeholder"
                     android:importantForAutofill="no"
-                    android:text="@={viewModel.timesPerPeriod}"/>
+                    android:text="@={viewModel.observer.timesPerPeriod}"/>
             <HorizontalScrollView android:layout_width="match_parent"
                                   android:layout_height="120dp">
                 <androidx.coordinatorlayout.widget.CoordinatorLayout

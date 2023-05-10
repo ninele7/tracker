@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.*
 import com.ninele7.tracker.R
 import java.io.Serializable
+import java.util.UUID
 
 interface HabitProperty : Serializable {
     val resource: Int
@@ -24,10 +25,13 @@ enum class HabitType(override val resource: Int, val emoji: String) : HabitPrope
 class Converters {
     @TypeConverter
     fun fromHabitPriority(value: HabitPriority): Int = value.ordinal
+
     @TypeConverter
     fun toHabitPriority(value: Int): HabitPriority = HabitPriority.values()[value]
+
     @TypeConverter
     fun fromHabitType(value: HabitType): Int = value.ordinal
+
     @TypeConverter
     fun toHabitType(value: Int): HabitType = HabitType.values()[value]
 }
@@ -35,21 +39,20 @@ class Converters {
 @Entity
 @TypeConverters(Converters::class)
 data class Habit(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    var name: String? = null,
-    var description: String? = null,
-    var priority: HabitPriority? = null,
-    var type: HabitType? = null,
-    var period: Int? = null,
-    var timesPerPeriod: Int? = null,
-    var color: Int? = null
+    @PrimaryKey
+    var uid: UUID,
+    var name: String,
+    var description: String,
+    var priority: HabitPriority,
+    var type: HabitType,
+    var period: Int,
+    var timesPerPeriod: Int,
+    var color: Int,
+    val updated: Long,
 ) : Serializable {
-    fun getPriorityText(c: Context): String? = priority?.getName(c)
-    fun getTypeText(c: Context): String? = type?.getName(c)
-    fun getTypeEmoji(): String? = type?.emoji
+    fun getTypeEmoji(): String = type.emoji
     fun getPriorityCardText(c: Context) =
-        c.getString(R.string.priority_habit_view, priority?.getName(c))
+        c.getString(R.string.priority_habit_view, priority.getName(c))
 
     fun getPeriodCardText(c: Context) =
         c.getString(R.string.period_habit_view, 0, timesPerPeriod, period)

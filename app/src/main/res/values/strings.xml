@@ -38,4 +38,5 @@
     <string name="sort_order">Sort order</string>
     <string name="creation_time">Creation time</string>
     <string name="name">Name</string>
+    <string name="smth_wrong">Что-то пошло не так</string>
 </resources>

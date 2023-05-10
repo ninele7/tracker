@@ -1,5 +1,7 @@
 package com.ninele7.tracker.ui.edit.habit
 
-interface EditHabitNavigator {
+interface EditHabitCallback {
     fun onSaved()
+
+    fun onError()
 }

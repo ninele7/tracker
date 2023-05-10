@@ -1,48 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_height="match_parent" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
->
-    <androidx.viewpager.widget.ViewPager android:layout_width="match_parent"
-                                         android:layout_height="match_parent"
-                                         android:layout_marginTop="42dp"
-                                         android:layout_marginBottom="40dp"
-                                         android:id="@+id/view_pager"/>
+        >
+
+    <androidx.viewpager2.widget.ViewPager2
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="42dp"
+            android:layout_marginBottom="40dp"
+            android:id="@+id/view_pager"/>
+
     <com.google.android.material.tabs.TabLayout
-            android:layout_height="42dp" android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_width="match_parent"
             android:id="@+id/tab_layout"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/fab_margin"
             app:srcCompat="@android:drawable/ic_input_add"
-            android:tint="@android:color/white" android:contentDescription="@string/plus_sign"
+            android:tint="@android:color/white"
+            android:contentDescription="@string/plus_sign"
             app:layout_anchor="@id/bottom_sheet"
             app:layout_anchorGravity="top|end"
-    />
+            />
+
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="120dp"
             app:behavior_hideable="false"
-            app:behavior_peekHeight="40dp" android:orientation="vertical"
+            app:behavior_peekHeight="40dp"
+            android:orientation="vertical"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             android:id="@+id/bottom_sheet"
             android:background="#000000"
-            android:clickable="true" android:focusable="true">
+            android:clickable="true"
+            android:focusable="true">
+
         <TextView
-                android:layout_width="match_parent" android:layout_height="40dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
                 android:textSize="24sp"
                 android:paddingHorizontal="8dp"
                 android:background="?attr/colorPrimary"
                 android:text="@string/filter"
                 android:textColor="@android:color/white"
-        />
-        <androidx.fragment.app.FragmentContainerView android:layout_width="match_parent"
-                                                     android:layout_height="wrap_content"
-                                                     android:name="com.ninele7.tracker.ui.main.BottomSheetFragment"
-                                                     android:id="@+id/bottom_sheet_content"/>
+                />
+
+        <androidx.fragment.app.FragmentContainerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:name="com.ninele7.tracker.ui.main.BottomSheetFragment"
+                android:id="@+id/bottom_sheet_content"/>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

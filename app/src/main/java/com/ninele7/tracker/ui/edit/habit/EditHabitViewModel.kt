@@ -17,49 +17,48 @@ import com.ninele7.tracker.model.Habit
 import com.ninele7.tracker.model.HabitPriority
 import com.ninele7.tracker.model.HabitType
 import kotlinx.coroutines.*
+import java.util.UUID
 
 class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
-    var name = ""
-    var description = ""
-    var period = ""
-    var timesPerPeriod = ""
-    var openId = -1
+    private var openId: UUID? = null
+    private var callback: EditHabitCallback? = null
     val priorityId = MutableLiveData(-1)
     val type = MutableLiveData<HabitType>(null)
-    var navigator: EditHabitNavigator? = null
 
     val observer = Observer()
 
-    fun loadHabitById(id: Int) {
+    fun loadHabitById(id: UUID) {
         openId = id
-        val habit = dataSource.habitsList.value?.firstOrNull { it.id == id }
-        if (habit != null) {
-            name = habit.name ?: ""
-            description = habit.description ?: ""
-            period = habit.period.toString()
-            timesPerPeriod = habit.timesPerPeriod.toString()
-            priorityId.value = habit.priority?.ordinal ?: -1
-            type.value = habit.type
-            val newColor = habit.color
-            if (newColor != null)
-                observer.color = newColor
+        viewModelScope.launch {
+            val habit = dataSource.getHabit(id)
+            Log.i("EditHabitViewModel", "loadHabitById: $habit")
+            if (habit != null) {
+                observer.name = habit.name
+                observer.description = habit.description
+                observer.period = habit.period.toString()
+                observer.timesPerPeriod = habit.timesPerPeriod.toString()
+                priorityId.value = habit.priority.ordinal
+                type.value = habit.type
+                observer.color = habit.color
+                observer.notifyChange()
+            }
         }
     }
 
-    fun onViewCreated(nav: EditHabitNavigator) {
-        navigator = nav
+    fun onViewCreated(callback: EditHabitCallback) {
+        this.callback = callback
     }
 
     fun onViewDestroyed() {
-        navigator = null
+        callback = null
     }
 
     private fun validateInput(): Int? {
-        if (name.isEmpty()) return R.string.no_name_for_habit
+        if (observer.name.isEmpty()) return R.string.no_name_for_habit
         if (priorityId.value == -1) return R.string.no_priority_for_habit
         if (type.value == null) return R.string.no_type_for_habit
-        if (period.isEmpty()) return R.string.no_period_for_habit
-        if (timesPerPeriod.isEmpty()
+        if (observer.period.isEmpty()) return R.string.no_period_for_habit
+        if (observer.timesPerPeriod.isEmpty()
         ) return R.string.no_times_per_period_for_habit
         return null
     }
@@ -71,31 +70,57 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
             return
         }
         viewModelScope.launch {
-            if (openId != -1) {
-                dataSource.updateHabit(createHabit(openId))
-            } else {
-                val habit = createHabit()
-                dataSource.addHabit(habit)
+            try {
+                if (openId != null) {
+                    dataSource.updateHabit(createHabit())
+                } else {
+                    val habit = createHabit()
+                    dataSource.addHabit(habit)
+                }
+                callback?.onSaved()
+            } catch (e: Exception) {
+                callback?.onError()
             }
-            navigator?.onSaved()
         }
     }
 
-    private fun createHabit(id: Int = 0): Habit {
-        val habit = Habit(id)
-        habit.name = name
-        habit.description = description
+    private fun createHabit(): Habit {
+        val newHabitName = observer.name
+        val newHabitDescription = observer.description
         val priorityIdValue = priorityId.value
-        if (priorityIdValue != null)
-            habit.priority = HabitPriority.values()[priorityIdValue]
-        habit.type = type.value
-        habit.period = period.toInt()
-        habit.timesPerPeriod = timesPerPeriod.toInt()
-        habit.color = observer.color
-        return habit
+        val newHabitPriority = if (priorityIdValue != -1 && priorityIdValue != null)
+            HabitPriority.values()[priorityIdValue]
+        else HabitPriority.MEDIUM
+        val newHabitType = type.value ?: HabitType.GOOD
+        val newHabitPeriod = observer.period.toInt()
+        val newHabitTimesPerPeriod = observer.timesPerPeriod.toInt()
+        val newHabitColor = observer.color
+        return Habit(
+            updated = System.currentTimeMillis(),
+            uid = openId ?: UUID.randomUUID(),
+            name = newHabitName,
+            description = newHabitDescription,
+            priority = newHabitPriority,
+            type = newHabitType,
+            period = newHabitPeriod,
+            timesPerPeriod = newHabitTimesPerPeriod,
+            color = newHabitColor
+        )
     }
 
     class Observer : BaseObservable() {
+        @Bindable
+        var name = ""
+
+        @Bindable
+        var description = ""
+
+        @Bindable
+        var period = ""
+
+        @Bindable
+        var timesPerPeriod = ""
+
         @get:Bindable
         var color: Int = Color.HSVToColor(floatArrayOf((1f / 32) * 360, 1f, 1f))
             set(value) {
@@ -121,7 +146,7 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
 }
 
 object EditHabitViewModelFactory : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EditHabitViewModel::class.java))
             @Suppress("UNCHECKED_CAST")
             return EditHabitViewModel(DataSource.getDataSource()) as T

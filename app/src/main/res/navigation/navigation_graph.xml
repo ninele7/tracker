@@ -14,7 +14,8 @@
     <fragment android:id="@+id/editHabitFragment"
               android:name="com.ninele7.tracker.ui.edit.habit.EditHabitFragment"
               android:label="@string/edit_habit">
-        <argument android:name="id" app:argType="integer" android:defaultValue="-1"/>
+        <argument android:name="id" app:argType="java.util.UUID"
+                  app:nullable="true"/>
     </fragment>
     <fragment android:id="@+id/aboutFragment"
               android:name="com.ninele7.tracker.ui.about.AboutFragment"

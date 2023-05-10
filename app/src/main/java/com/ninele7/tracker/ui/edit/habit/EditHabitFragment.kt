@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -16,7 +17,7 @@ import com.ninele7.tracker.model.HabitPriority
 import com.ninele7.tracker.model.HabitType
 import com.ninele7.tracker.ui.util.ColorPicker
 
-class EditHabitFragment : Fragment(), EditHabitNavigator {
+class EditHabitFragment : Fragment(), EditHabitCallback {
     private val viewModel by viewModels<EditHabitViewModel> {
         EditHabitViewModelFactory
     }
@@ -36,8 +37,8 @@ class EditHabitFragment : Fragment(), EditHabitNavigator {
         val prioritySpinner = binding.prioritySpinner
         prioritySpinner.setAdapter(priorities)
         val typeRadio = binding.typeRadioGroup
-
-        if (args.id != -1) viewModel.loadHabitById(args.id)
+        val argsUid = args.id
+        if (argsUid != null) viewModel.loadHabitById(argsUid)
         prioritySpinner.onItemClickListener =
             AdapterView.OnItemClickListener { _, _, position, _ ->
                 viewModel.priorityId.value = position
@@ -75,5 +76,13 @@ class EditHabitFragment : Fragment(), EditHabitNavigator {
 
     override fun onSaved() {
         findNavController().popBackStack()
+    }
+
+    override fun onError() {
+        val activity = activity
+        activity?.runOnUiThread {
+            Toast.makeText(activity.baseContext, getString(R.string.smth_wrong), Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 }

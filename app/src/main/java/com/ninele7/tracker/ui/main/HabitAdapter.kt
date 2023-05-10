@@ -37,7 +37,7 @@ class HabitAdapter : ListAdapter<Habit, HabitAdapter.HabitViewHolder>(HabitDiffC
 
 object HabitDiffCallback : DiffUtil.ItemCallback<Habit>() {
     override fun areItemsTheSame(oldItem: Habit, newItem: Habit): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.updated == newItem.updated
     }
 
     override fun areContentsTheSame(oldItem: Habit, newItem: Habit): Boolean {
@@ -45,7 +45,7 @@ object HabitDiffCallback : DiffUtil.ItemCallback<Habit>() {
     }
 }
 
-class HabitMoveCallback(private val adapter: HabitAdapter, private val swipedCallBack: (Int) -> Unit) :
+class HabitMoveCallback(private val swipedCallBack: (Int) -> Unit) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
     override fun onMove(
         recyclerView: RecyclerView,
