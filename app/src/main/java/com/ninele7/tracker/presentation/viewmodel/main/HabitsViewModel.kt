@@ -1,24 +1,28 @@
-package com.ninele7.tracker.ui.main
+package com.ninele7.tracker.presentation.viewmodel.main
 
 import android.util.Log
 import androidx.lifecycle.*
 import com.ninele7.tracker.R
-import com.ninele7.tracker.model.DataSource
-import com.ninele7.tracker.model.Habit
-import com.ninele7.tracker.model.HabitType
+import com.ninele7.tracker.domain.habit.Habit
+import com.ninele7.tracker.domain.habit.HabitInteractor
+import com.ninele7.tracker.domain.habit.HabitType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.UUID
+import javax.inject.Inject
 import kotlin.math.sign
 
-class HabitsViewModel(private val dataSource: DataSource) : ViewModel() {
+@HiltViewModel
+class HabitsViewModel @Inject constructor(private val habitInteractor: HabitInteractor) :
+    ViewModel() {
     val filterString = MutableLiveData("")
     private val sortOrder = MutableLiveData<(Habit, Habit) -> Int>()
     private var callback: HabitsCallback? = null
 
-    private val habits: LiveData<List<Habit>> =
-        dataSource.habitsList.asLiveData().product(filterString).product(sortOrder)
+    private fun habits(): LiveData<List<Habit>> =
+        habitInteractor.allLocalHabits().asLiveData().product(filterString).product(sortOrder)
             .map { (pair, order) ->
                 if (pair != null) {
                     val (list, filter) = pair
@@ -47,14 +51,14 @@ class HabitsViewModel(private val dataSource: DataSource) : ViewModel() {
     }
 
     fun getFilteredHabits(type: HabitType?): LiveData<List<Habit>> {
-        if (type == null) return habits
-        return habits.map { it.filter { h -> h.type == type } }
+        if (type == null) return habits()
+        return habits().map { it.filter { h -> h.type == type } }
     }
 
     fun removeHabit(id: UUID, failureCallback: () -> Unit): Job =
         viewModelScope.async {
             try {
-                dataSource.removeHabit(id)
+                habitInteractor.removeHabit(id)
             } catch (e: Exception) {
                 Log.e("HabitsViewModel", "removeHabit", e)
                 callback?.onError()
@@ -65,20 +69,26 @@ class HabitsViewModel(private val dataSource: DataSource) : ViewModel() {
     fun forceSync(): Job =
         viewModelScope.launch {
             try {
-                dataSource.forceSync()
+                habitInteractor.forceSync()
             } catch (e: Exception) {
                 Log.e("HabitsViewModel", "forceSync", e)
                 callback?.onError()
             }
         }
-}
 
-object HabitsViewModelFactory : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HabitsViewModel::class.java)) @Suppress("UNCHECKED_CAST") return HabitsViewModel(
-            DataSource.getDataSource()
-        ) as T
-        throw IllegalArgumentException("Unknown ViewModel class")
+    fun completeHabit(habit: Habit) {
+        viewModelScope.launch {
+            try {
+                habitInteractor.completeHabit(habit.uid)
+                callback?.onHabitCompleted(
+                    habit.timesPerPeriod - habit.completions.size - 1,
+                    habit.type
+                )
+            } catch (e: Exception) {
+                Log.e("HabitsViewModel", "completeHabit", e)
+                callback?.onError()
+            }
+        }
     }
 }
 

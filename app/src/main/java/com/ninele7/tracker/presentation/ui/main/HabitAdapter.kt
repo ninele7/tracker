@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.main
+package com.ninele7.tracker.presentation.ui.main
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +10,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ninele7.tracker.R
 import com.ninele7.tracker.databinding.HabitBinding
-import com.ninele7.tracker.model.Habit
+import com.ninele7.tracker.domain.habit.Habit
+import com.ninele7.tracker.presentation.Mappings.getEmoji
+import com.ninele7.tracker.presentation.Mappings.getPeriodCardText
+import com.ninele7.tracker.presentation.Mappings.getPriorityCardText
 
 
 class HabitAdapter : ListAdapter<Habit, HabitAdapter.HabitViewHolder>(HabitDiffCallback) {
@@ -19,7 +22,12 @@ class HabitAdapter : ListAdapter<Habit, HabitAdapter.HabitViewHolder>(HabitDiffC
 
         fun bind(habit: Habit) {
             if (binding != null) {
-                binding.habit = habit
+                binding.name = habit.name
+                binding.description = habit.description
+                binding.priorityCardText = habit.getPriorityCardText(itemView.context)
+                binding.periodCardText = habit.getPeriodCardText(itemView.context)
+                binding.typeEmoji = habit.type.getEmoji()
+                binding.color = habit.color
             }
         }
     }
@@ -58,4 +66,3 @@ class HabitMoveCallback(private val swipedCallBack: (Int) -> Unit) :
         swipedCallBack(position)
     }
 }
-

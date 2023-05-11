@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.main
+package com.ninele7.tracker.presentation.ui.util
 
 import android.content.Context
 import android.view.GestureDetector
@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 
 class RecyclerItemClickListener(
     context: Context,
-    private val mListener: (View, Int) -> Unit
+    private val mListener: (View, Int) -> Unit,
+    private val additionalHandler: (View, Int, MotionEvent) -> Boolean = { _, _, _ -> false }
 ) : RecyclerView.OnItemTouchListener {
 
     private val mGestureDetector: GestureDetector =
@@ -21,7 +22,12 @@ class RecyclerItemClickListener(
     override fun onInterceptTouchEvent(view: RecyclerView, e: MotionEvent): Boolean {
         val childView = view.findChildViewUnder(e.x, e.y)
         if (childView != null && mGestureDetector.onTouchEvent(e)) {
-            mListener(childView, view.getChildAdapterPosition(childView))
+            val position = view.getChildAdapterPosition(childView)
+            if (additionalHandler(childView, position, e)) {
+                return false
+            }
+
+            mListener(childView, position)
         }
         return false
     }

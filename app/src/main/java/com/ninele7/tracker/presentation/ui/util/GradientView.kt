@@ -1,5 +1,6 @@
-package com.ninele7.tracker.ui.util
+package com.ninele7.tracker.presentation.ui.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -18,6 +19,7 @@ class GradientView(context: Context, attrs: AttributeSet) : View(context, attrs)
         Color.HSVToColor(floatArrayOf(360f, 1f, 1f))
     )
 
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas?) {
         val shader: Shader = LinearGradient(
             left.toFloat(),

@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.edit.habit
+package com.ninele7.tracker.presentation.ui.edit
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,7 +8,8 @@ import android.widget.ArrayAdapter
 import android.widget.Filter
 import android.widget.TextView
 import com.ninele7.tracker.R
-import com.ninele7.tracker.model.HabitProperty
+import com.ninele7.tracker.domain.habit.HabitProperty
+import com.ninele7.tracker.presentation.Mappings.getName
 
 class HabitPropertyArrayAdapter<T>(
     context: Context,

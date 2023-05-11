@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.main
+package com.ninele7.tracker.presentation.ui.main
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,12 +9,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.ninele7.tracker.R
 import com.ninele7.tracker.databinding.BottomSheetFragmentBinding
+import com.ninele7.tracker.presentation.viewmodel.main.HabitsViewModel
 
 class BottomSheetFragment : Fragment() {
     private lateinit var binding: BottomSheetFragmentBinding
-    private val viewModel by activityViewModels<HabitsViewModel> {
-        HabitsViewModelFactory
-    }
+    private val viewModel by activityViewModels<HabitsViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,

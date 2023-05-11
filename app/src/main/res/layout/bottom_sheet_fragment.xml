@@ -3,7 +3,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
 >
     <data>
-        <variable name="viewModel" type="com.ninele7.tracker.ui.main.HabitsViewModel"/>
+        <variable name="viewModel" type="com.ninele7.tracker.presentation.viewmodel.main.HabitsViewModel"/>
     </data>
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                   android:orientation="vertical">

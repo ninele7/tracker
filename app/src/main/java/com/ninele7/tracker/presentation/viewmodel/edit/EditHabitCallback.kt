@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.edit.habit
+package com.ninele7.tracker.presentation.viewmodel.edit
 
 interface EditHabitCallback {
     fun onSaved()

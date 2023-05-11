@@ -38,5 +38,10 @@
     <string name="sort_order">Sort order</string>
     <string name="creation_time">Creation time</string>
     <string name="name">Name</string>
-    <string name="smth_wrong">Что-то пошло не так</string>
+    <string name="smth_wrong">Something went wrong</string>
+    <string name="plus_text">➕</string>
+    <string name="should_do_more">Стоит выполнить еще %1$d раз</string>
+    <string name="can_do_more">Можете выполнить еще %1$d раз</string>
+    <string name="you_great">You are breathtaking!</string>
+    <string name="stop_doing_it">Хватит это делать</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.util
+package com.ninele7.tracker.presentation.ui.util
 
 import android.content.Context
 import android.graphics.Color
@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.ninele7.tracker.R
-import com.ninele7.tracker.ui.main.RecyclerItemClickListener
 
 data class ColorStore(val color: Int, var selected: Boolean)
 

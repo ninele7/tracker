@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.main
+package com.ninele7.tracker.presentation.ui.main
 
 import android.content.Context
 import android.os.Bundle
@@ -21,7 +21,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.ninele7.tracker.R
-import com.ninele7.tracker.model.HabitType
+import com.ninele7.tracker.domain.habit.HabitType
+import com.ninele7.tracker.presentation.Mappings.getName
+import com.ninele7.tracker.presentation.viewmodel.main.HabitsCallback
+import com.ninele7.tracker.presentation.viewmodel.main.HabitsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 class GoodBadHabitsAdapter(
     fragmentManager: FragmentManager,
@@ -45,12 +49,11 @@ class GoodBadHabitsAdapter(
 }
 
 
+@AndroidEntryPoint
 class MainFragment : Fragment(), HabitsCallback {
     private lateinit var pager: ViewPager2
 
-    private val viewModel by activityViewModels<HabitsViewModel> {
-        HabitsViewModelFactory
-    }
+    private val viewModel by activityViewModels<HabitsViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -111,6 +114,28 @@ class MainFragment : Fragment(), HabitsCallback {
         activity?.runOnUiThread {
             Toast.makeText(activity.baseContext, getString(R.string.smth_wrong), Toast.LENGTH_SHORT)
                 .show()
+        }
+    }
+
+    override fun onHabitCompleted(i: Int, type: HabitType) {
+        val activity = activity
+        activity?.runOnUiThread {
+            val toastText = when (type) {
+                HabitType.GOOD -> if (i > 0) getString(
+                    R.string.should_do_more,
+                    i
+                ) else getString(R.string.you_great)
+
+                HabitType.BAD -> if (i > 0) getString(
+                    R.string.can_do_more,
+                    i
+                ) else getString(R.string.stop_doing_it)
+            }
+            Toast.makeText(
+                activity.baseContext,
+                toastText,
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }

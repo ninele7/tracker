@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.edit.habit
+package com.ninele7.tracker.presentation.viewmodel.edit
 
 import android.graphics.Color
 import android.util.Log
@@ -7,19 +7,22 @@ import androidx.databinding.BaseObservable
 import androidx.databinding.Bindable
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.snackbar.Snackbar
 import com.ninele7.tracker.BR
 import com.ninele7.tracker.R
-import com.ninele7.tracker.model.DataSource
-import com.ninele7.tracker.model.Habit
-import com.ninele7.tracker.model.HabitPriority
-import com.ninele7.tracker.model.HabitType
+import com.ninele7.tracker.domain.habit.Habit
+import com.ninele7.tracker.domain.habit.HabitInteractor
+import com.ninele7.tracker.domain.habit.HabitPriority
+import com.ninele7.tracker.domain.habit.HabitType
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import java.util.UUID
+import javax.inject.Inject
 
-class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
+@HiltViewModel
+class EditHabitViewModel @Inject constructor(private val habitInteractor: HabitInteractor) :
+    ViewModel() {
     private var openId: UUID? = null
     private var callback: EditHabitCallback? = null
     val priorityId = MutableLiveData(-1)
@@ -30,7 +33,7 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
     fun loadHabitById(id: UUID) {
         openId = id
         viewModelScope.launch {
-            val habit = dataSource.getHabit(id)
+            val habit = habitInteractor.getHabit(id)
             Log.i("EditHabitViewModel", "loadHabitById: $habit")
             if (habit != null) {
                 observer.name = habit.name
@@ -72,10 +75,10 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
         viewModelScope.launch {
             try {
                 if (openId != null) {
-                    dataSource.updateHabit(createHabit())
+                    habitInteractor.updateHabit(createHabit())
                 } else {
                     val habit = createHabit()
-                    dataSource.addHabit(habit)
+                    habitInteractor.addHabit(habit)
                 }
                 callback?.onSaved()
             } catch (e: Exception) {
@@ -142,14 +145,5 @@ class EditHabitViewModel(private val dataSource: DataSource) : ViewModel() {
             val b = color and 0xff
             return "RGB($r, $g, $b)"
         }
-    }
-}
-
-object EditHabitViewModelFactory : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(EditHabitViewModel::class.java))
-            @Suppress("UNCHECKED_CAST")
-            return EditHabitViewModel(DataSource.getDataSource()) as T
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

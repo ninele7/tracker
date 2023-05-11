@@ -1,4 +1,4 @@
-package com.ninele7.tracker.ui.edit.habit
+package com.ninele7.tracker.presentation.ui.edit
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,14 +13,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.ninele7.tracker.R
 import com.ninele7.tracker.databinding.EditHabitFragmentBinding
-import com.ninele7.tracker.model.HabitPriority
-import com.ninele7.tracker.model.HabitType
-import com.ninele7.tracker.ui.util.ColorPicker
+import com.ninele7.tracker.domain.habit.HabitPriority
+import com.ninele7.tracker.domain.habit.HabitType
+import com.ninele7.tracker.presentation.Mappings.getName
+import com.ninele7.tracker.presentation.ui.util.ColorPicker
+import com.ninele7.tracker.presentation.viewmodel.edit.EditHabitCallback
+import com.ninele7.tracker.presentation.viewmodel.edit.EditHabitViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class EditHabitFragment : Fragment(), EditHabitCallback {
-    private val viewModel by viewModels<EditHabitViewModel> {
-        EditHabitViewModelFactory
-    }
+    private val viewModel by viewModels<EditHabitViewModel>()
     private lateinit var binding: EditHabitFragmentBinding
     private val args: EditHabitFragmentArgs by navArgs()
     override fun onCreateView(
